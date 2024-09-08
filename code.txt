@@ -2,7 +2,7 @@
 count=0;
 startrepit=1;
  repicount=zeros(5,1);
-for repit = 1000:1000:5000
+for repit = 1000:100:1500
 
  repi=0;
 
@@ -30,7 +30,7 @@ for repit = 1000:1000:5000
          if exist(path, 'file') == 2
              disp(filename); 
             img=imread(path);
-            img = imresize(img, [16 16]);
+            img = imresize(img, [ ]);
             
            dims = size(img);
             third = dims(3);    
