@@ -1,14 +1,21 @@
 
-count=0;
+count=0; couttest=0;
 startrepit=1;
  repicount=zeros(5,1);
-for repit = 1000:100:1500
+for repit = 1000:1000:5000
 
  repi=0;
 
     for image = 1:100
         filename = sprintf('%d_Rep(%d).jpg', repit, image);  
         path=fullfile('C:\Users\User\Downloads\HWTBench2023-main\Images\train\common',filename);
+        pathtest=fullfile('C:\Users\User\Downloads\HWTBench2023-main\Images\test\common1',filename);
+        
+        if exist(pathtest,'file')==2
+            couttest=couttest+1;
+        else
+        end
+        
          if exist(path, 'file') == 2
              count=count+1;
              repi=repi+1;
@@ -18,19 +25,108 @@ for repit = 1000:100:1500
     repicount(startrepit,:)=repi;
     startrepit=startrepit+1;
 end
+
 run=1;
 x_new_input=zeros(count,44);
          
 y_class_p=zeros(count,1);
+y_class_test=zeros(couttest,1);
 
 for repit = 1000:1000:5000
     for image = 1:100
         filename = sprintf('%d_Rep(%d).jpg', repit, image);  
         path=fullfile('C:\Users\User\Downloads\HWTBench2023-main\Images\train\common',filename);
+        pathtest=fullfile('C:\Users\User\Downloads\HWTBench2023-main\Images\test\common1',filename);
+       
+        if exist(pathtest, 'file') == 2
+%             imgtest=imread(pathtest);
+%             imgtest= imresize(img, [16 16]);
+%             dims = size(imgtest);
+%             third = dims(3);  
+%             
+%              f=struct();
+%             
+%                                  filter1_x = [-1 0 1 0 0;
+%                                -2 0 2 0 0;
+%                                -1 0 1 0 0;
+%                                 0 0 0 0 0;
+%                                 0 0 0 0 0];
+% 
+%                     filter1_y = [-1 -2 -1 0 0;
+%                                 0  0  0 0 0;
+%                                 1  2  1 0 0;
+%                                 0  0  0 0 0;
+%                                 0  0  0 0 0];
+%                             
+%                             f.filter1=sqrt(filter1_x.^2+filter1_y.^2);
+%                         filter2_x = [-1 0 1 0 0;
+%                                  -1 0 1 0 0;
+%                                  -1 0 1 0 0;
+%                                   0 0 0 0 0;
+%                                   0 0 0 0 0];
+% 
+%                     filter2_y = [-1 -1 -1 0 0;
+%                                   0  0  0 0 0;
+%                                   1  1  1 0 0;
+%                                   0  0  0 0 0;
+%                                   0  0  0 0 0];
+% 
+%                      f.filter2=sqrt(filter2_x.^2+filter2_y.^2);
+%                                
+%                     filter3_x = [-3 0 3 0 0;
+%                                -10 0 10 0 0;
+%                                 -3 0 3 0 0;
+%                                  0 0 0 0 0;
+%                                  0 0 0 0 0];
+% 
+%                     filter3_y = [-3 -10 -3 0 0;
+%                                 0   0   0 0 0;
+%                                 3   10  3 0 0;
+%                                 0   0   0 0 0;
+%                                 0   0   0 0 0];
+%                             
+%                      f.filter3=sqrt(filter3_x.^2+filter3_y.^2);
+%                       
+% 
+%                     f.filter4 = [1  4  6  4  1;
+%                                 4 16 24 16  4;
+%                                 6 24 36 24  6;
+%                                 4 16 24 16  4;
+%                                 1  4  6  4  1] / 256;
+% 
+%                     f.filter5 = [0  0 -1  0  0;
+%                                  0 -1 -2 -1  0;
+%                                 -1 -2 16 -2 -1;
+%                                  0 -1 -2 -1  0;
+%                                  0  0 -1  0  0];
+%                filters=5;
+%                
+%                for starttest=1:filters
+%                    
+%                        filterName = sprintf('filter%d', starttest);
+%                        cf=f.(filterName);
+%                        
+%                        sum=0;
+%                     for chan=1:third
+%                         so_mag_test(:,:,chan)=conv2(imgtest(:,:,chan), double(cf), 'valid');
+%                          sum=sum+so_mag_test(:,:,chan);
+%                     end
+%                     assign_matrix_test(:,:,starttest)=sum;
+%                end
+%                  relu_activated_test = max(0, assign_matrix_test);
+%                 disp('relu');
+%                 
+%                 [m, n, p] = size(relu_activated_test);
+%                 pooled_matrix_test = zeros(floor(m/2), floor(n/2), p);      
+%                
+               
+            
+        end%test end
+        
          if exist(path, 'file') == 2
              disp(filename); 
             img=imread(path);
-            img = imresize(img, [ ]);
+            img = imresize(img, [16 16]);
             
            dims = size(img);
             third = dims(3);    
@@ -301,11 +397,18 @@ end
 
 
 x_new_input=x_new_input(1:229,:);
+X_dontchange=zscore(x_new_input);
 y_class_p=y_class_p(1:229,:);
 y_class_p=y_class_p+1;
 
  options = statset('MaxIter', 2000);
 bias = mnrfit(zscore(x_new_input), y_class_p);
+c=mnrval(bias,zscore(X_dontchange));
+[~,ypredfir]=max(mnrval(bias,zscore(x_new_input)),[],2);
+boxplot(bias);
+title('Box Plot of Bias Values');
+xlabel('Bias');
+ylabel('Value');
 
 
 c1=repicount(1,1);
@@ -313,7 +416,7 @@ c2=repicount(1,1)+repicount(2,1);
 c3=c2+repicount(3,1);
 
 c4=c3+repicount(4,1);%postponed.
-c5=c4+repicount(5,1);;
+c5=c4+repicount(5,1);
 
 
 
@@ -353,6 +456,12 @@ for assignclass=1:count
     
 end
 
+% x_firstdata=x_new_input(1:1,:);
+% one_mat=mnrval(bias,x_firstdata);
+% two_mat=mnrval(bias3,x_firstdata);
+% th_mat=mnrval(bias4,x_firstdata);
+% table(one_mat(1,2),two_mat(1,2),th_mat(1,2));
+
 x_new_input=x_new_input(1:229,:);
  y_class_t= y_class_t(1:229,:);
  y_class_t= y_class_t+1;
@@ -365,13 +474,31 @@ x_new_input=x_new_input(1:229,:);
 bias2=mnrfit(zscore(x_new_input), y_class_third);
 [~,ypredthird]=max(mnrval(bias1,zscore(x_new_input)),[],2);
     
-y_class_fo=y_class_fo+1;
-bias3=mnrfit(zscore(x_new_input), y_class_fo);
-[~,ypredfo]=max(mnrval(bias3,zscore(x_new_input)),[],2);
+rowstodups=187:229;
+dupsrowsx=x_new_input(rowstodups,:);
+x_duplicated=[x_new_input;dupsrowsx];
+x_duplicated_new=[x_duplicated;dupsrowsx];
+dupscolsx=y_class_fo(rowstodups,:);
+y_duplicated=[y_class_fo;dupscolsx];
+y_duplicated_new=[y_duplicated;dupscolsx];
 
-y_class_fi=y_class_fi+1;
-bias4=mnrfit(zscore(x_new_input), y_class_fi);
-[~,ypredfi]=max(mnrval(bias4,zscore(x_new_input)),[],2);
+x_new_inputnew=x_duplicated_new;
+y_class_fo=y_duplicated_new+1;
+bias3=mnrfit(zscore(x_new_inputnew), y_class_fo);
+[~,ypredfo]=max(mnrval(bias3,zscore(x_new_inputnew)),[],2);
+
+x_new_inputnew=x_duplicated_new;
+x_new_input=x_new_input(22:315,:);
+y_class_fo=y_duplicated_new(22:315)+1;
+bias3=mnrfit(zscore(x_new_inputnew), y_class_fo);
+[~,ypredfo]=max(mnrval(bias3,zscore(x_new_inputnew)),[],2);
+
+% x_new_input=x_new_input(44:229,:);
+% y_class_fi=y_class_fi+1;
+% bias4=mnrfit(zscore(x_new_input), y_class_fi(44:229));
+% [~,ypredfi]=max(mnrval(bias4,zscore(x_new_input)),[],2);
+
+
 
 
 
